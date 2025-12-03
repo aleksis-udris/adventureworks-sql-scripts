@@ -1,4 +1,6 @@
+-- Create Database
 
+CREATE DATABASE IF NOT EXISTS ADVENTUREWORKS_DWS;
 -- Create Date Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimDate
 (
@@ -176,8 +178,12 @@ ORDER BY (EmployeeID, ValidFromDate);
 
 -- Create Vendor Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimVendor (
+
+    -- Atslēgas
     VendorKey UInt64,
     VendorID UInt32,
+
+    -- Atribūti
     VendorName String,
     ContactPerson String,
     Email String,
@@ -190,42 +196,51 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimVendor (
     QualityScore DECIMAL(5,2),
     PaymentTerms String,
     VendorStatus LowCardinality(String),
+
+    -- Versionēšana
     ValidFromDate Date,
     ValidToDate Date,
     IsCurrent UInt8,
     SourceUpdateDate Date,
-    Version UInt64
-) ENGINE = ReplacingMergeTree(Version) PARTITION BY toYYYYMM(ValidFromDate)
+) ENGINE = ReplacingMergeTree(IsCurrent) PARTITION BY toYYYYMM(ValidFromDate)
 ORDER BY
     (VendorID, ValidFromDate);
 
 -- Create Promotion Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimPromotion (
+
+    -- Atslēgas
     PromotionKey UInt64,
     PromotionID UInt32,
+
+    -- Atribūti
     PromotionName String,
     PromotionDescription String,
     PromotionType LowCardinality(String),
     DiscountPercentage DECIMAL(5, 2),
     DiscountAmount DECIMAL(18, 2),
-    StartDate Date,
-    EndDate Date,
-    IsActive UInt8,
     PromotionStatus LowCardinality(String),
+    TargetCustomerSegment Nullable(String),
+
+    -- Paplašinājums
     CampaignID UInt32,
     TargetProductKey Nullable(UInt32),
-    TargetCustomerSegment Nullable(String),
-    ValidFromDate Date,
-    ValidToDate Date,
-    IsCurrent UInt8
-) ENGINE = ReplacingMergeTree(IsCurrent) PRIMARY KEY (PromotionKey, PromotionID)
+
+    -- Versionēšana
+    StartDate Date,
+    EndDate Date,
+    IsActive UInt8
+) ENGINE = ReplacingMergeTree(IsActive) PRIMARY KEY (PromotionKey, PromotionID)
 ORDER BY
     (PromotionKey, PromotionID);
 
 -- Create Feedback Category Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimFeedbackCategory (
+    -- Atslēgas
     FeedbackCategoryKey UInt64,
     FeedbackCategoryID UInt32,
+
+    -- Atribūti
     CategoryName String,
     CategoryDescription String
 ) ENGINE = MergeTree() PRIMARY KEY (FeedbackCategoryKey, FeedbackCategoryID)
@@ -234,8 +249,12 @@ ORDER BY
 
 -- Create Return Reason Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimReturnReason (
+
+    -- Atslēgas
     ReturnReasonKey UInt64,
     ReturnReasonID UInt32,
+
+    -- Atribūti
     ReturnReasonName LowCardinality(String),
     ReturnReasonDescription String
 ) ENGINE = MergeTree() PRIMARY KEY ReturnReasonKey
@@ -243,32 +262,34 @@ ORDER BY
     (ReturnReasonKey, ReturnReasonID)
 
 -- Create Warehouse Dimension
-CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimPromotion (
-    PromotionKey UInt64,
-    PromotionID UInt32,
-    PromotionName String,
-    PromotionDescription String,
-    PromotionType LowCardinality(String),
-    DiscountPercentage DECIMAL(5, 2),
-    DiscountAmount DECIMAL(18, 2),
-    StartDate Date,
-    EndDate Date,
-    IsActive UInt8,
-    PromotionStatus LowCardinality(String),
-    CampaignID UInt32,
-    TargetProductKey Nullable(UInt32),
-    TargetCustomerSegment Nullable(String),
+CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimWarehouse (
+
+    -- Atslēgas
+    WarehouseKey UInt64,
+    WarehouseID UInt32,
+
+    -- Atribūti
+    WarehouseName String,
+    Location String,
+    WarehouseType LowCardinality(String),
+    ManagerKey UInt64,
+
+    -- Versionēšana
     ValidFromDate Date,
     ValidToDate Date,
     IsCurrent UInt8
-) ENGINE = ReplacingMergeTree(IsCurrent) PRIMARY KEY (PromotionKey, PromotionID)
+) ENGINE = ReplacingMergeTree(IsCurrent) PRIMARY KEY (WarehouseKey, WarehouseID)
 ORDER BY
-    (PromotionKey, PromotionID);
+    (WarehouseKey, WarehouseID);
 
 -- Create Sales Territory Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimSalesTerritory (
+
+    -- Atslēgas
     TerritoryKey UInt64,
     TerritoryID UInt32,
+
+    -- Atribūti
     TerritoryName String,
     SalesRegion LowCardinality(String),
     Country LowCardinality(String),
@@ -280,8 +301,12 @@ ORDER BY
 
 -- Create Customer Segment Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimCustomerSegment (
+
+    -- Atslēgas
     SegmentKey UInt64,
     SegmentID UInt32,
+
+    -- Atribūti
     SegmentName LowCardinality(String),
     SegmentDescription String,
     DiscountTierStart Decimal(5, 2),
@@ -292,8 +317,12 @@ ORDER BY
 
 -- Create Aging Tier Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimSalesTerritory (
+
+    -- Atslēgas
     TerritoryKey UInt64,
     TerritoryID UInt32,
+
+    -- Atribūti
     TerritoryName String,
     SalesRegion LowCardinality(String),
     Country LowCardinality(String),
@@ -305,8 +334,11 @@ ORDER BY
 
 -- Create Finance Category Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimFinanceCategory (
+    -- Atslēgas
     FinanceCategoryKey UInt64,
     FinanceCategoryID UInt32,
+
+    -- Atribūti
     CategoryName LowCardinality(String),
     CategoryDescription String
 ) ENGINE = MergeTree() PRIMARY KEY (FinanceCategoryKey, FinanceCategoryID)
@@ -315,8 +347,11 @@ ORDER BY
 
 -- Create Region Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimRegion (
+    -- Atslēgas
     RegionKey UInt64,
     RegionID UInt32,
+
+    -- Atribūti
     RegionName String,
     Country LowCardinality(String),
     Continent LowCardinality(String),
@@ -327,8 +362,11 @@ ORDER BY
 
 -- Create Product Category Dimension
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.DimProductCategory (
+    -- Atslēgas
     ProductCategoryKey UInt64,
     ProductCategoryID UInt32,
+
+    -- Atribūti
     CategoryName String,
     CategoryDescription String
 ) ENGINE = MergeTree PRIMARY KEY (ProductCategoryKey, ProductCategoryID)

@@ -1,20 +1,24 @@
+
+-- Create Database ADVENTUREWORKS_DWS
+CREATE DATABASE IF NOT EXISTS ADVENTUREWORKS_DWS;
+
 -- Fact tables
 -- Sales Facts
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactSales (
 
     -- Savienojumi ar dimensijām
-    SalesDateKey Date,
-    CustomerID Int32,
-    ProductID Int32,
-    StoreID Int32,
-    EmployeeID Int32,
+    SalesDateKey UInt32,
+    CustomerID UInt32,
+    ProductID UInt32,
+    StoreID UInt32,
+    EmployeeID UInt32,
 
     -- "Grain"
-    SalesOrderID Int32,
-    SalesOrderDetailID Int32,
+    SalesOrderID UInt32,
+    SalesOrderDetailID UInt32,
 
     -- Mērījumi
-    QuantitySold Int32,
+    QuantitySold UInt32,
     SalesRevenue Decimal(18, 2),
     DiscountAmount Decimal(18, 2),
     NumberOfTransactions UInt8,
@@ -24,7 +28,7 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactSales (
     UnitPriceDiscount Decimal(18, 4),
     LineTotal Decimal(18, 2),
     InsertedAt DateTime DEFAULT now()
-) ENGINE = MergeTree PARTITION BY toYYYYMM(SalesDateKey)
+) ENGINE = MergeTree PARTITION BY SalesDateKey
 ORDER BY
     (
         SalesDateKey,
@@ -36,21 +40,22 @@ ORDER BY
     );
 
 -- Purchase Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactPurchases;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactPurchases (
 
     -- Savienojumi ar dimensijām
-    PurchaseDateKey Date,
-    CustomerID Int32,
-    ProductID Int32,
-    StoreID Int32,
-    EmployeeID Int32,
+    PurchaseDateKey UInt32,
+    CustomerID UInt32,
+    ProductID UInt32,
+    StoreID UInt32,
+    EmployeeID UInt32,
 
     -- "Grain"
-    PurchaseOrderID Int32,
-    PurchaseOrderDetailID Int32,
+    PurchaseOrderID UInt32,
+    PurchaseOrderDetailID UInt32,
 
     -- Mērījumi
-    QuantityBought Int32,
+    QuantityBought UInt32,
     PurchaseAmount Decimal(18, 2),
     DiscountAmount Decimal(18, 2),
     NumberOfTransactions UInt8,
@@ -60,7 +65,7 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactPurchases (
     UnitPriceDiscount Decimal(18, 4),
     LineTotal Decimal(18, 2),
     InsertedAt DateTime DEFAULT now()
-) ENGINE = MergeTree PARTITION BY toYYYYMM(PurchaseDateKey)
+) ENGINE = MergeTree PARTITION BY PurchaseDateKey
 ORDER BY
     (
         PurchaseDateKey,
@@ -75,12 +80,12 @@ ORDER BY
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactInvertory (
 
     -- Savienojumi ar dimensijām
-    InventoryDateKey Date,
+    InventoryDateKey UInt32,
     ProductKey UInt32,
     StoreKey UInt32,
     WarehouseKey UInt32,
 
-    -- Mērījumi
+    -- Atribūti
     quantityOnHand UInt32,
     StockAging UInt32,
     ReorderLevel UInt32,
@@ -89,22 +94,27 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactInvertory (
     -- "Grain"
     SnapshotCreatedDateTime DateTime,
     ETLBatchID String
-) ENGINE = MergeTree PARTITION BY toYYYYMM(InventoryDateKey)
+) ENGINE = MergeTree PARTITION BY InventoryDateKey
 ORDER BY
-    (InventoryDateKey, ProductKey, WarehouseKey, StoreKey);
+    (
+        InventoryDateKey,
+        ProductKey,
+        WarehouseKey,
+        StoreKey
+    );
 
 -- Production Facts
-CREATE TABLE IF NOT EXISTS FactProduction (
+CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactProduction (
 
     -- Surogātatslēga
     ProductionRunID UInt64,
 
     -- Savienojumi ar Dimensijām
-    ProductionDateKey Date,
+    ProductionDateKey UInt32,
     ProductKey UInt32,
     SupervisorKey UInt32,
 
-    -- Mērījumi
+    -- Atribūti
     UnitsProduced UInt32,
     ProductionTimeHours Decimal(10, 2),
     ScrapRatePercent Decimal(5, 2),
@@ -113,20 +123,25 @@ CREATE TABLE IF NOT EXISTS FactProduction (
     -- "Grain"
     ETLBatchID String,
     LoadTimestamp DateTime
-) ENGINE = MergeTree PARTITION BY toYYYYMM(ProductionDateKey)
+) ENGINE = MergeTree PARTITION BY ProductionDateKey
 ORDER BY
-    (ProductionDateKey, ProductKey, ProductionRunID);
+    (
+        ProductionDateKey,
+        ProductKey,
+        ProductionRunID
+    );
 
 -- Employee Sale Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactEmployeeSales;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactEmployeeSales (
 
     -- Savienojumi ar dimensijām
-    SalesDateKey Date,
+    SalesDateKey UInt32,
     EmployeeKey UInt32,
     StoreKey UInt32,
     SalesTerritoryKey UInt32,
 
-    -- Mērījumi
+    -- Atribūti
     SalesAmount Decimal(18, 2),
     SalesTarget Decimal(18, 2),
     TargetAttainment Decimal(10, 4),
@@ -135,7 +150,7 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactEmployeeSales (
     -- "Grain"
     ETLBatchID String,
     LoadTimestamp DateTime
-) ENGINE = MergeTree PARTITION BY toYYYYMM(SalesDateKey)
+) ENGINE = MergeTree PARTITION BY SalesDateKey
 ORDER BY
     (
         SalesDateKey,
@@ -148,12 +163,12 @@ ORDER BY
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactCustomerFeedback (
 
     -- Savienojumi ar Dimensijām
-    FeedbackDateKey Date,
+    FeedbackDateKey UInt32,
     CustomerKey UInt32,
     EmployeeKey UInt32,
     FeedbackCategoryKey UInt32,
 
-    -- Mērījumi
+    -- Atribūti
     FeedbackScore UInt8,
     ComplaintCount UInt8,
     ResolutionTimeHours Decimal(10, 2),
@@ -164,7 +179,7 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactCustomerFeedback (
     -- "Grain"
     ETLBatchID String,
     LoadTimestamp DateTime
-) ENGINE = MergeTree PARTITION BY toYYYYMM(FeedbackDateKey)
+) ENGINE = MergeTree PARTITION BY FeedbackDateKey
 ORDER BY
     (
         FeedbackDateKey,
@@ -174,10 +189,10 @@ ORDER BY
     );
 
 -- Promotion Response Facts
-CREATE TABLE FactPromotionResponse (
+CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactPromotionResponse (
 
     -- Savienojumi ar Dimensijām
-    PromotionDateKey Date,
+    PromotionDateKey UInt32,
     ProductKey UInt32,
     StoreKey UInt32,
     PromotionKey UInt32,
@@ -191,7 +206,7 @@ CREATE TABLE FactPromotionResponse (
     -- "Grain"
     ETLBatchID String,
     LoadTimestamp DateTime
-) ENGINE = MergeTree PARTITION BY toYYYYMM(PromotionDateKey)
+) ENGINE = MergeTree PARTITION BY PromotionDateKey
 ORDER BY
     (
         PromotionDateKey,
@@ -200,9 +215,10 @@ ORDER BY
         StoreKey
     );
 
+-- Create Finance Facts
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactFinance (
     -- Savienojumi ar Dimensijām
-    InvoiceDateKey Date,
+    InvoiceDateKey UInt32,
     CustomerKey UInt32,
     StoreKey UInt32,
     FinanceCategoryKey UInt32,
@@ -218,7 +234,7 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactFinance (
     -- "Grain"
     ETLBatchID String,
     LoadTimestamp DateTime
-) ENGINE = MergeTree PARTITION BY toYYYYMM(InvoiceDateKey)
+) ENGINE = MergeTree PARTITION BY InvoiceDateKey
 ORDER BY
     (
         InvoiceDateKey,
@@ -230,14 +246,14 @@ ORDER BY
 -- Return Facts
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactReturns (
     -- Savienojumi ar Dimensijām
-    ReturnDateKey Date,
+    ReturnDateKey UInt32,
     ProductKey UInt32,
     CustomerKey UInt32,
     StoreKey UInt32,
     ReturnReasonKey UInt32,
 
     -- Atribūti
-    ReturnedQuantity Int32,
+    ReturnedQuantity UInt32,
     RefundAmount Decimal(18, 2),
     RestockingFee Decimal(18, 2),
     ReturnID String,
@@ -248,7 +264,7 @@ CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactReturns (
     -- "Grain"
     ETLBatchID String,
     LoadTimestamp DateTime
-) ENGINE = MergeTree PARTITION BY toYYYYMM(ReturnDateKey)
+) ENGINE = MergeTree PARTITION BY ReturnDateKey
 ORDER BY
     (
         ReturnDateKey,

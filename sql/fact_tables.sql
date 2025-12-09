@@ -4,10 +4,11 @@ CREATE DATABASE IF NOT EXISTS ADVENTUREWORKS_DWS;
 
 -- Fact tables
 -- Sales Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactSales;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactSales (
 
     -- Savienojumi ar dimensijām
-    SalesDateKey UInt32,
+    SalesDateKey Date,
     CustomerID UInt32,
     ProductID UInt32,
     StoreID UInt32,
@@ -44,7 +45,7 @@ DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactPurchases;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactPurchases (
 
     -- Savienojumi ar dimensijām
-    PurchaseDateKey UInt32,
+    PurchaseDateKey Date,
     CustomerID UInt32,
     ProductID UInt32,
     StoreID UInt32,
@@ -77,10 +78,11 @@ ORDER BY
     );
 
 -- Inventory Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactInventory;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactInvertory (
 
     -- Savienojumi ar dimensijām
-    InventoryDateKey UInt32,
+    InventoryDateKey Date,
     ProductKey UInt32,
     StoreKey UInt32,
     WarehouseKey UInt32,
@@ -104,13 +106,14 @@ ORDER BY
     );
 
 -- Production Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactProduction;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactProduction (
 
     -- Surogātatslēga
     ProductionRunID UInt64,
 
     -- Savienojumi ar Dimensijām
-    ProductionDateKey UInt32,
+    ProductionDateKey Date,
     ProductKey UInt32,
     SupervisorKey UInt32,
 
@@ -136,7 +139,7 @@ DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactEmployeeSales;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactEmployeeSales (
 
     -- Savienojumi ar dimensijām
-    SalesDateKey UInt32,
+    SalesDateKey Date,
     EmployeeKey UInt32,
     StoreKey UInt32,
     SalesTerritoryKey UInt32,
@@ -160,10 +163,11 @@ ORDER BY
     );
 
 -- Customer Feedback Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactCustomerFeedback;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactCustomerFeedback (
 
     -- Savienojumi ar Dimensijām
-    FeedbackDateKey UInt32,
+    FeedbackDateKey Date,
     CustomerKey UInt32,
     EmployeeKey UInt32,
     FeedbackCategoryKey UInt32,
@@ -189,10 +193,11 @@ ORDER BY
     );
 
 -- Promotion Response Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactPromotionResponse;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactPromotionResponse (
 
     -- Savienojumi ar Dimensijām
-    PromotionDateKey UInt32,
+    PromotionDateKey Date,
     ProductKey UInt32,
     StoreKey UInt32,
     PromotionKey UInt32,
@@ -216,9 +221,10 @@ ORDER BY
     );
 
 -- Create Finance Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactFinance;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactFinance (
     -- Savienojumi ar Dimensijām
-    InvoiceDateKey UInt32,
+    InvoiceDateKey Date,
     CustomerKey UInt32,
     StoreKey UInt32,
     FinanceCategoryKey UInt32,
@@ -244,9 +250,10 @@ ORDER BY
     );
 
 -- Return Facts
+DROP TABLE IF EXISTS ADVENTUREWORKS_DWS.FactReturns;
 CREATE TABLE IF NOT EXISTS ADVENTUREWORKS_DWS.FactReturns (
     -- Savienojumi ar Dimensijām
-    ReturnDateKey UInt32,
+    ReturnDateKey Date,
     ProductKey UInt32,
     CustomerKey UInt32,
     StoreKey UInt32,

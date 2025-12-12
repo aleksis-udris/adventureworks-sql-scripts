@@ -486,12 +486,21 @@ DIMENSIONS = {
                 l.Name AS WarehouseName,
                 l.Name AS Location,
                 'Manufacturing' AS WarehouseType,
-                NULL::BIGINT AS ManagerKey,
+                ('x' || MD5(e.BusinessEntityID::TEXT || COALESCE(e.ModifiedDate::TEXT, '')))
+                ::bit(32)::BIGINT AS ManagerKey,
                 l.ModifiedDate AS ValidFromDate,
                 DATE '9999-12-31' AS ValidToDate,
                 1 AS IsCurrent
-            FROM Production.Location l
-            ORDER BY l.LocationID;
+            FROM Production.Location AS l
+                JOIN Production.WorkOrderRouting AS wor
+                    ON l.LocationID = wor.LocationID
+                JOIN HumanResources.EmployeeDepartmentHistory AS edh
+                    ON wor.OperationSequence % 10 = edh.ShiftID
+                JOIN HumanResources.Employee AS e
+                    ON edh.BusinessEntityID = e.BusinessEntityID
+                JOIN HumanResources.Department AS d
+                    ON edh.DepartmentID = d.DepartmentID
+                ORDER BY l.LocationID, d.DepartmentID;
         """
     },
     "DimSalesTerritory": {
@@ -678,6 +687,20 @@ STATIC_LOOKUPS = {
             (3, 3, 'Large Transaction', 'Transaction $1000-$10000'),
             (4, 4, 'Enterprise Transaction', 'Transaction > $10000'),
             (5, 5, 'Credit Transaction', 'Credit-based purchases')
+        ]
+    },
+    "DimReturnReason": {
+        "Columns": [
+            "ReturnReasonKey",
+            "ReturnReasonID",
+            "ReturnReasonName",
+            "ReturnReasonDescription"
+        ],
+        "Data": [
+            (1, 1, 'Defective', 'Product or it\'s part/s are defective'),
+            (2, 2, 'Wrong Item', 'Wrong Product Received'),
+            (3, 3, 'Changed Mind', 'Don\'t want this product after all'),
+            (4, 4, 'Damaged', 'Received a damaged product'),
         ]
     }
 }

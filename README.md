@@ -22,11 +22,11 @@
 
 Understanding the data warehouse structure and design decisions.
 
-| Document | Description | Pages |
-|----------|-------------|-------|
-| [Schema Design Specification](reading/schema_specification.md) | Complete logical and physical schema design with all fact and dimension tables | 8-10 |
-| [Data Lineage & Mapping](reading/data_mapping.md) | Source-to-target mappings, transformation rules, and data flow diagrams | 5-7 |
-| [ClickHouse Physical Design](reading/clickhouse_physical_design.md) | ClickHouse-specific implementation: engines, partitioning, indexes | 10-15 |
+| Document                                                            | Description                                                                    | Pages |
+|---------------------------------------------------------------------|--------------------------------------------------------------------------------|-------|
+| [Schema Design Specification](reading/schema_specification.md)      | Complete logical and physical schema design with all fact and dimension tables | 8-10  |
+| [Data Lineage & Mapping](reading/data_mapping.md)                   | Source-to-target mappings, transformation rules, and data flow diagrams        | 5-7   |
+| [ClickHouse Physical Design](reading/clickhouse_physical_design.md) | ClickHouse-specific implementation: engines, partitioning, indexes             | 10-15 |
 
 **Key Topics**: Star schema, SCD Type 2, fact tables, dimension tables, grain definition
 
@@ -36,12 +36,12 @@ Understanding the data warehouse structure and design decisions.
 
 How data moves from PostgreSQL to ClickHouse and transforms along the way.
 
-| Document | Description | Pages |
-|----------|-------------|-------|
-| [ETL Architecture Overview](reading/etl_architecture.md) | High-level pipeline design, incremental loading, data freshness SLA | 4-6 |
-| [Airflow DAG Specification](reading/airflow_dag_spec.md) | Task dependencies, scheduling, XCom usage, retry logic | 8-12 |
-| [Transformation Logic](reading/transformation_logic.md) | SCD Type 2 merge, fact loading, foreign key resolution, aggregations | 8-10 |
-| [Error Handling & Monitoring](reading/error_handling.md) | **CRITICAL**: Error classification, recovery strategies, alerting | 12-15 |
+| Document                                                          | Description                                                          | Pages |
+|-------------------------------------------------------------------|----------------------------------------------------------------------|-------|
+| [ETL Architecture Overview](reading/etl_architecture.md)          | High-level pipeline design, incremental loading, data freshness SLA  | 4-6   |
+| [Airflow DAG Specification](reading/airflow_dag_specification.md) | Task dependencies, scheduling, XCom usage, retry logic               | 8-12  |
+| [Transformation Logic](reading/transformation_logic.md)           | SCD Type 2 merge, fact loading, foreign key resolution, aggregations | 8-10  |
+| [Error Handling & Monitoring](reading/error_handling.md)          | **CRITICAL**: Error classification, recovery strategies, alerting    | 12-15 |
 
 **Key Topics**: Incremental loads, SCD merge logic, error_records table, retry strategies
 
@@ -51,11 +51,11 @@ How data moves from PostgreSQL to ClickHouse and transforms along the way.
 
 Practical guides for setting up and operating the data warehouse.
 
-| Document | Description | Pages |
-|----------|-------------|-------|
-| [Setup & Installation Guide](reading/setup_installation.md) | Prerequisites, environment setup, initial data loads | 6-8 |
-| [Deployment & Operations Runbook](reading/deployment_runbook.md) | Production deployment, monitoring, incident response | 10-12 |
-| [Performance & Capacity Planning](reading/performance_capacity.md) | Query optimization, partition pruning, scaling strategies | 6-8 |
+| Document                                                           | Description                                               | Pages |
+|--------------------------------------------------------------------|-----------------------------------------------------------|-------|
+| [Setup & Installation Guide](reading/setup_installation.md)        | Prerequisites, environment setup, initial data loads      | 6-8   |
+| [Deployment & Operations Runbook](reading/deployment_runbook.md)   | Production deployment, monitoring, incident response      | 10-12 |
+| [Performance & Capacity Planning](reading/performance_capacity.md) | Query optimization, partition pruning, scaling strategies | 6-8   |
 
 **Key Topics**: Docker setup, Airflow configuration, production checklist, runbooks
 
@@ -65,12 +65,12 @@ Practical guides for setting up and operating the data warehouse.
 
 Glossaries, best practices, and troubleshooting guides.
 
-| Document | Description | Pages |
-|----------|-------------|-------|
-| [Glossary & Terminology](reading/glossary.md) | Data warehouse terms, ClickHouse concepts, acronyms | 4-6 |
-| [FAQ & Troubleshooting](reading/faq_troubleshooting.md) | Common issues, solutions, debugging tips | 6-8 |
-| [Development Standards](reading/dev_standards.md) | Coding conventions, SQL style guide, testing practices | 5-7 |
-| [Architecture & Design Rationale](reading/architecture_rationale.md) | Why ClickHouse? Why star schema? Design decisions explained | 4-6 |
+| Document                                                             | Description                                                 | Pages |
+|----------------------------------------------------------------------|-------------------------------------------------------------|-------|
+| [Glossary & Terminology](reading/glossary.md)                        | Data warehouse terms, ClickHouse concepts, acronyms         | 4-6   |
+| [FAQ & Troubleshooting](reading/faq_troubleshooting.md)              | Common issues, solutions, debugging tips                    | 6-8   |
+| [Development Standards](reading/dev_standards.md)                    | Coding conventions, SQL style guide, testing practices      | 5-7   |
+| [Architecture & Design Rationale](reading/architecture_rationale.md) | Why ClickHouse? Why star schema? Design decisions explained | 4-6   |
 
 **Key Topics**: Naming conventions, error codes, performance patterns
 
@@ -136,13 +136,13 @@ Glossaries, best practices, and troubleshooting guides.
 
 ## Document Versioning
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | Dec 2025 | Initial release |
+| Version | Date     | Changes         |
+|---------|----------|-----------------|
+| 1.0     | Dec 2025 | Initial release |
 
 ---
 
-**Next Steps**: New to the project? Start with [Schema Design Specification](reading/schema_specification.md) to understand the data model.
+**Next Steps**: New to the project? Start with [Schema Design Specification](reading/clickhouse_physical_design.md) to understand the data model.
 This project, as the name suggests, 
 exists for the sole purpose of learning 
 how to practically create and maintain a 
@@ -158,7 +158,7 @@ Data Warehouse and its associated systems:
 # Index
 
 ### Schema Information
-1. [Schema Specification](reading/schema_specification.md)
+1. [Schema Specification](reading/clickhouse_physical_design.md)
 2. [Data Mapping](reading/data_mapping.md)
 3. Clickhouse Design
 

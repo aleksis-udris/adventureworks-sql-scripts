@@ -110,7 +110,7 @@ FACTS = {
                 sod.SalesOrderID,
                 sod.SalesOrderDetailID,
                 sod.OrderQty AS QuantitySold,
-                CAST(sod.UnitPrice * sod.OrderQty * (1 - sod.UnitPriceDiscount) AS DECIMAL(18, 2)) AS SalesRevenue,
+                CAST(sod.UnitPrice * sod.OrderQty AS DECIMAL(18, 2)) AS SalesRevenue,
                 CAST(sod.UnitPrice * sod.OrderQty * sod.UnitPriceDiscount AS DECIMAL(18, 2)) AS DiscountAmount,
                 1 AS NumberOfTransactions,
                 CAST(sod.UnitPrice AS DECIMAL(18, 2)) AS UnitPrice,
@@ -211,7 +211,7 @@ FACTS = {
             SELECT
                 pi.ModifiedDate::DATE AS InventoryDateKey,
                 pi.ProductID AS ProductID,
-                NULL::INT AS StoreID,
+                latest_store.StoreID AS StoreID,
                 pi.LocationID AS WarehouseID,
                 pi.Quantity AS QuantityOnHand,
                 EXTRACT(DAY FROM (CURRENT_DATE - p.SellStartDate))::INT AS StockAging,
@@ -220,8 +220,23 @@ FACTS = {
                 CURRENT_TIMESTAMP AS SnapshotCreatedDateTime,
                 uuid_generate_v4()::TEXT AS ETLBatchID
             FROM Production.ProductInventory AS pi
-            INNER JOIN Production.Product AS p ON pi.ProductID = p.ProductID
-            INNER JOIN Production.Location AS l ON pi.LocationID = l.LocationID
+            INNER JOIN Production.Product AS p 
+                ON pi.ProductID = p.ProductID
+            INNER JOIN Production.Location AS l 
+                ON pi.LocationID = l.LocationID
+            LEFT JOIN LATERAL (
+                SELECT s.BusinessEntityID AS StoreID
+                FROM Sales.SalesOrderDetail sod
+                INNER JOIN Sales.SalesOrderHeader soh 
+                    ON sod.SalesOrderID = soh.SalesOrderID
+                INNER JOIN Sales.Customer c 
+                    ON soh.CustomerID = c.CustomerID
+                INNER JOIN Sales.Store s 
+                    ON c.StoreID = s.BusinessEntityID
+                WHERE sod.ProductID = pi.ProductID
+                ORDER BY soh.OrderDate DESC
+                LIMIT 1
+            ) AS latest_store ON TRUE
             ORDER BY pi.ModifiedDate::DATE, pi.ProductID, pi.LocationID;
         """,
     },
@@ -503,7 +518,7 @@ FACTS = {
                 CAST(0 AS DECIMAL(10, 4)) AS CreditUsagePct,
                 CAST(0 AS DECIMAL(18, 2)) AS InterestCharges,
                 soh.SalesOrderID::TEXT AS InvoiceNumber,
-                CASE WHEN soh.Status == 5 THEN 'Shipped' ELSE 'Pending' END AS PaymentStatus,
+                CASE WHEN soh.Status = 5 THEN 'Shipped' ELSE 'Pending' END AS PaymentStatus,
                 'USD' AS CurrencyCode,
                 uuid_generate_v4()::TEXT AS ETLBatchID,
                 CURRENT_TIMESTAMP AS LoadTimestamp
@@ -552,35 +567,57 @@ FACTS = {
         ],
         "query": """
             SELECT
-                th.TransactionDate::DATE AS ReturnDateKey,
-                p.ProductID AS ProductID,
-                c.CustomerID AS CustomerID,
+                soh.OrderDate + INTERVAL '15 days' + 
+                    (random() * 45)::INTEGER * INTERVAL '1 day' AS ReturnDateKey,
+                sod.ProductID AS ProductID,
+                soh.CustomerID AS CustomerID,
                 c.StoreID AS StoreID,
                 CASE
-                    WHEN sr.ScrapReasonID = 3 OR sr.ScrapReasonID = 7 THEN 4::BIGINT
-                    WHEN sr.ScrapReasonID = 12 OR sr.ScrapReasonID = 13 THEN 3::BIGINT
-                    WHEN sr.ScrapReasonID <= 2 OR (sr.ScrapReasonID >= 4 AND sr.ScrapReasonID <= 6) OR sr.ScrapReasonID = 10 THEN 2::BIGINT
+                    WHEN random() < 0.15 THEN 4::BIGINT
+                    WHEN random() < 0.35 THEN 3::BIGINT
+                    WHEN random() < 0.60 THEN 2::BIGINT
                     ELSE 1::BIGINT
                 END AS ReturnReasonKey,
-                ABS(th.Quantity) AS ReturnedQuantity,
-                CAST(ABS(th.ActualCost * th.Quantity) AS DECIMAL(18, 2)) AS RefundAmount,
-                CAST(0 AS DECIMAL(18, 2)) AS RestockingFee,
-                th.TransactionID::TEXT AS ReturnID,
-                th.ReferenceOrderID::TEXT AS OriginalSalesID,
-                'Direct' AS ReturnMethod,
-                'Unknown' AS ConditionOnReturn,
+                CASE 
+                    WHEN sod.OrderQty = 1 THEN 1
+                    ELSE GREATEST(1, CAST(sod.OrderQty * random() * 0.5 AS INTEGER))
+                END AS ReturnedQuantity,
+                CAST(
+                    CASE 
+                        WHEN sod.OrderQty = 1 THEN sod.UnitPrice
+                        ELSE sod.UnitPrice * GREATEST(1, CAST(sod.OrderQty * random() * 0.5 AS INTEGER))
+                    END AS DECIMAL(18, 2)
+                ) AS RefundAmount,
+                CAST(
+                    CASE 
+                        WHEN random() < 0.7 THEN 0  -- 70% no restocking fee
+                        ELSE sod.UnitPrice * 0.15 * GREATEST(1, CAST(sod.OrderQty * random() * 0.5 AS INTEGER))
+                    END AS DECIMAL(18, 2)
+                ) AS RestockingFee,
+                'RET-' || sod.SalesOrderID || '-' || sod.SalesOrderDetailID AS ReturnID,
+                sod.SalesOrderID::TEXT AS OriginalSalesID,
+                CASE 
+                    WHEN soh.OnlineOrderFlag THEN 
+                        CASE WHEN random() < 0.5 THEN 'Mail' ELSE 'Store' END
+                    ELSE 'Direct'
+                END AS ReturnMethod,
+                CASE
+                    WHEN random() < 0.15 THEN 'Damaged'
+                    WHEN random() < 0.30 THEN 'Opened'
+                    WHEN random() < 0.50 THEN 'Like New'
+                    ELSE 'New/Sealed'
+                END AS ConditionOnReturn,
                 uuid_generate_v4()::TEXT AS ETLBatchID,
                 CURRENT_TIMESTAMP AS LoadTimestamp
-            FROM Production.TransactionHistory AS th
-            INNER JOIN Production.Product AS p ON th.ProductID = p.ProductID
-            LEFT JOIN Production.WorkOrder AS wo ON th.ReferenceOrderID = wo.WorkOrderID
-            LEFT JOIN Production.ScrapReason AS sr ON wo.ScrapReasonID = sr.ScrapReasonID
-            INNER JOIN Sales.SalesOrderDetail AS sod ON th.ReferenceOrderID = sod.SalesOrderID
-                AND th.ReferenceOrderLineID = sod.SalesOrderDetailID
-            INNER JOIN Sales.SalesOrderHeader AS soh ON sod.SalesOrderID = soh.SalesOrderID
-            LEFT JOIN Sales.Customer AS c ON soh.CustomerID = c.CustomerID
-            WHERE th.TransactionType = 'S' AND th.Quantity < 0
-            ORDER BY th.TransactionDate::DATE, th.TransactionID;
+            FROM Sales.SalesOrderDetail sod
+            INNER JOIN Sales.SalesOrderHeader soh ON sod.SalesOrderID = soh.SalesOrderID
+            INNER JOIN Sales.Customer c ON soh.CustomerID = c.CustomerID
+            INNER JOIN Production.Product p ON sod.ProductID = p.ProductID
+            WHERE 
+                soh.OrderDate IS NOT NULL
+                AND soh.Status = 5
+                AND random() < 0.08
+            ORDER BY soh.OrderDate, sod.SalesOrderID;
         """,
     },
 }
@@ -805,5 +842,3 @@ def populate():
 
 
 populate()
-
-

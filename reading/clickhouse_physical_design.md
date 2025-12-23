@@ -219,7 +219,7 @@ CREATE TABLE ADVENTUREWORKS_DWS.FactSales (
     InsertedAt DateTime DEFAULT now()
 )
 ENGINE = MergeTree()
-PARTITION BY toYYYYMM(SalesDateKey)
+PARTITION BY SalesDateKey
 ORDER BY (SalesDateKey, ProductKey, CustomerKey, StoreKey, SalesOrderID, SalesOrderDetailID);
 ```
 
@@ -232,8 +232,8 @@ ORDER BY (SalesDateKey, ProductKey, CustomerKey, StoreKey, SalesOrderID, SalesOr
 
 **Partition Pruning Example**:
 ```sql
--- Good: Scans only December 2025 partition (50x faster)
-SELECT * FROM FactSales WHERE SalesDateKey >= '2025-12-01';
+-- Good: Scans only specific date partitions (50x faster)
+SELECT * FROM FactSales WHERE SalesDateKey >= '2025-12-01' AND SalesDateKey <= '2025-12-31';
 
 -- Bad: Scans ALL partitions (no pruning)
 SELECT * FROM FactSales WHERE YEAR(SalesDateKey) = 2025;
@@ -421,10 +421,10 @@ GROUP BY SalesDateKey, StoreKey, ProductCategoryKey;
 | Table Type | Engine | Partitioning | Use Case |
 |------------|--------|--------------|----------|
 | SCD Type 1 | MergeTree | None (small tables) | Static lookups |
-| SCD Type 2 | ReplacingMergeTree | Monthly by ValidFromDate | Versioned dimensions |
-| Fact Tables | MergeTree | Monthly by date key | Transactional data |
-| Aggregates | MergeTree | Monthly by date key | Pre-computed summaries |
-| Error Logs | MergeTree | Monthly by ErrorDate | ETL error tracking |
+| SCD Type 2 | ReplacingMergeTree | Monthly by ValidFromDate (toYYYYMM) | Versioned dimensions |
+| Fact Tables | MergeTree | Daily by date key | Transactional data |
+| Aggregates | MergeTree | Daily or Monthly by date key | Pre-computed summaries |
+| Error Logs | MergeTree | Monthly by ErrorDate (toYYYYMM) | ETL error tracking |
 
 **Key Takeaways**:
 1. Use **ReplacingMergeTree** only for SCD Type 2 (versioned data)

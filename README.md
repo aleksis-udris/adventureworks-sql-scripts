@@ -69,7 +69,7 @@ Glossaries, best practices, and troubleshooting guides.
 |----------------------------------------------------------------------|-------------------------------------------------------------|-------|
 | [Glossary & Terminology](reading/glossary.md)                        | Data warehouse terms, ClickHouse concepts, acronyms         | 4-6   |
 | [FAQ & Troubleshooting](reading/faq_troubleshooting.md)              | Common issues, solutions, debugging tips                    | 6-8   |
-| [Development Standards](reading/dev_standards.md)                    | Coding conventions, SQL style guide, testing practices      | 5-7   |
+| [Development Standards](reading/development_standards.md)            | Coding conventions, SQL style guide, testing practices      | 5-7   |
 | [Architecture & Design Rationale](reading/architecture_rationale.md) | Why ClickHouse? Why star schema? Design decisions explained | 4-6   |
 
 **Key Topics**: Naming conventions, error codes, performance patterns
@@ -81,7 +81,7 @@ Glossaries, best practices, and troubleshooting guides.
 **I want to...**
 
 - **Understand the overall architecture** → [ETL Architecture Overview](reading/etl_architecture.md)
-- **Add a new fact table** → [Transformation Logic](reading/transformation_logic.md) + [Airflow DAG Spec](reading/airflow_dag_spec.md)
+- **Add a new fact table** → [Transformation Logic](reading/transformation_logic.md) + [Airflow DAG Spec](reading/airflow_dag_specification.md)
 - **Debug a failed DAG run** → [Error Handling & Monitoring](reading/error_handling.md)
 - **Optimize slow queries** → [Performance & Capacity Planning](reading/performance_capacity.md)
 - **Deploy to production** → [Deployment & Operations Runbook](reading/deployment_runbook.md)
@@ -106,7 +106,7 @@ Glossaries, best practices, and troubleshooting guides.
 - **SCD Type 2 History Tracking** - Full dimensional history with IsCurrent flags  
 - **Incremental Loading** - Only load changed data (361x faster than full loads)  
 - **Comprehensive Error Handling** - Recoverable vs non-recoverable error classification  
-- **Partition Pruning** - Monthly partitions for 50x query speed improvements  
+- **Partition Pruning** - Daily partitions for 50x query speed improvements  
 - **Pre-Aggregated Tables** - Fast reporting without scanning fact tables  
 - **Automated Retry Logic** - Smart error recovery with exponential backoff  
 
@@ -142,39 +142,16 @@ Glossaries, best practices, and troubleshooting guides.
 
 ---
 
-**Next Steps**: New to the project? Start with [Schema Design Specification](reading/clickhouse_physical_design.md) to understand the data model.
-This project, as the name suggests, 
-exists for the sole purpose of learning 
-how to practically create and maintain a 
-Data Warehouse and its associated systems:
+**Next Steps**: New to the project? Start with [Schema Design Specification](reading/schema_specification.md) to understand the data model.
+
+---
+
+## About This Project
+
+This project exists for the sole purpose of learning how to practically create and maintain a Data Warehouse and its associated systems:
 - ETL Pipeline
 - Dimensions
 - Facts
 - Aggregates
 - Data Stores
 - Analytics
-- Etc.
-
-# Index
-
-### Schema Information
-1. [Schema Specification](reading/clickhouse_physical_design.md)
-2. [Data Mapping](reading/data_mapping.md)
-3. Clickhouse Design
-
-### ETL Pipeline
-1. ETL Architecture
-2. Airflow DAG Specification
-3. Transformation Logic
-4. Error Handling
-
-### Implementation & Deployement
-1. Setup & Installation
-2. Deployment Runbook
-3. Performance & Capacity
-
-### Citations & Base Information
-1. Terminology
-2. Troubleshooting
-3. Best Practices
-4. Architecture & Rationale

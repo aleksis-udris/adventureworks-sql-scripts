@@ -20,19 +20,18 @@ Apache Airflow orchestrates the entire ETL pipeline from PostgreSQL source to Cl
 **Key DAGs**:
 - `adventureworks_dimension_sync` - Load/update dimension tables (hourly)
 - `adventureworks_fact_population` - Load fact tables (hourly)
-- `dag_dwh_error_recovery` - Reprocess recoverable errors (daily)
+- Note: Error reprocessing is handled within the main DAGs, not as a separate DAG
 
 ---
 
 ## Naming Convention
 
 ```
-dag_<project>_<frequency>_v<version>
+<project>_<purpose>
 
 Examples:
 - adventureworks_dimension_sync    (dimension loading)
 - adventureworks_fact_population   (fact loading)
-- dag_dwh_error_recovery_v1        (error reprocessing)
 ```
 
 **Task Naming**:
